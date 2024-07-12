@@ -59,6 +59,8 @@ func TranslateNodeToContainer(node *k3d.Node) (*NodeInDocker, error) {
 		// slirp4netns when running rootless, therefore for rootless podman to
 		// work, this must be set.
 		NetworkMode: "bridge",
+		// CapAdd:      strings.Split(os.Getenv("K3D_HOST_CAP_ADD"), ","),
+		CapAdd:      []string{"SYS_PTRACE"},
 	}
 	networkingConfig := network.NetworkingConfig{}
 
