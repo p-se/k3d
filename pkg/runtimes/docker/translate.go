@@ -30,16 +30,16 @@ import (
 	"strconv"
 	"strings"
 
+	dockercliopts "github.com/docker/cli/opts"
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
+	dockerunits "github.com/docker/go-units"
+
 	l "github.com/k3d-io/k3d/v5/pkg/logger"
 	runtimeErr "github.com/k3d-io/k3d/v5/pkg/runtimes/errors"
 	k3d "github.com/k3d-io/k3d/v5/pkg/types"
-
-	dockercliopts "github.com/docker/cli/opts"
-	dockerunits "github.com/docker/go-units"
 )
 
 // TranslateNodeToContainer translates a k3d node specification to a docker container representation
@@ -59,6 +59,11 @@ func TranslateNodeToContainer(node *k3d.Node) (*NodeInDocker, error) {
 		// slirp4netns when running rootless, therefore for rootless podman to
 		// work, this must be set.
 		NetworkMode: "bridge",
+		// CapAdd:      strings.Split(os.Getenv("K3D_HOST_CAP_ADD"), ","),
+		// https://stackoverflow.com/questions/19215177/how-to-solve-ptrace-operation-not-permitted-when-trying-to-attach-gdb-to-a-pro
+		CapAdd:      []string{"SYS_PTRACE"},
+		SecurityOpt: []string{"seccomp=unconfined"},
+		Privileged: true,
 	}
 	networkingConfig := network.NetworkingConfig{}
 
